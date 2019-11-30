@@ -9,6 +9,39 @@
 // 	ct.drawImage(image, 33, 71)
 // })
 
+// this values can be used to test the forward propagation
+
+let inputTemp = [[1, 2]]
+let calculatedOuput = [[2.5869, 3.1544]]
+let wishedOuput = [[2.6, 3.2]]
+
+
+let weightMatriciesTemp = [[
+	[0.99, 0.38, 0.27], 
+	[0.29, 0.96, 0.17]
+], [
+	[0.46, 0.01], 
+	[0.45, 0.81], 
+	[0.07, 0.22]
+]]
+
+let biasesTemp = [[
+	[0.56, 0.85, 0.67]
+], [
+	[0.1, 0.3]
+]]
+
+let errorFunctions = {
+	meanSquared : (computed, expected) => {
+		if (computed[0].length != expected[0].length)
+			return console.error('expected dimensions do not agree')
+		let sum = 0
+		for (let i = 0; i < computed[0].length; i ++)
+			sum += (computed[0][i] - expected[0][i]) ** 2
+		return sum / (2 * computed[0].length)
+	}
+}
+
 let activationFunctions = {
 	sigmoid : {
 		f : x => 1 / (1 + Math.E ** -x), 
@@ -81,9 +114,9 @@ let applyBias = (temp, bias) => {
 }
 
 let ANN = (layers, labels, activationFunction) => {
-	let weightMatricies = initWeightMatricies(layers)
+	let weightMatricies = weightMatriciesTemp //initWeightMatricies(layers)
 	console.log('weightMatricies', weightMatricies)
-	let biases = initBiases(layers)
+	let biases = biasesTemp //initBiases(layers)
 	console.log('biases', biases)
 	return {
 		forwardPropagation (input) {
@@ -97,8 +130,9 @@ let ANN = (layers, labels, activationFunction) => {
 			}
 			return temp
 		},
-		calculateError () {
-			
+		calculateError (input, output, errorFunction) {
+			let computedOutput = this.forwardPropagation(input)
+			return errorFunctions[errorFunction](computedOutput, output)
 		},
 		backPropagation () {
 			
@@ -108,8 +142,8 @@ let ANN = (layers, labels, activationFunction) => {
 
 // TODO: specify activation function for each layer
 let ann = ANN([2, 3, 2], ['cat', 'dog'])
-
-console.log(ann.forwardPropagation([[1, 2]]))
+console.log(ann.forwardPropagation(inputTemp))
+console.log(ann.calculateError(inputTemp, [[2.6, 3.2]], 'meanSquared'))
 
 // console.log(initBiases([2, 3, 2]))
 
